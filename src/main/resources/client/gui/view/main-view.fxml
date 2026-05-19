@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.canvas.Canvas?>
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.gui.controller.MainController">
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <top>
+        <VBox spacing="5.0">
+
+            <!-- Меню команд -->
+            <MenuBar>
+                <menus>
+                    <Menu text="Команды">
+                        <items>
+                            <!-- Команды без аргументов -->
+                            <MenuItem text="Показать все (SHOW)" onAction="#handleShow" />
+                            <MenuItem text="Инфо о коллекции (INFO)" onAction="#handleInfo" />
+                            <MenuItem text="Очистить (CLEAR)" onAction="#handleClear" />
+                            <MenuItem text="Сортировать (SORT)" onAction="#handleSort" />
+                            <MenuItem text="Сумма скорости (SUM)" onAction="#handleSumOfImpactSpeed" />
+                            <MenuItem text="По mood (PRINT_DESC)" onAction="#handlePrintFieldDescendingMood" />
+                            <SeparatorMenuItem />
+
+                            <!-- Команды с аргументами -->
+                            <Menu text="Фильтры">
+                                <items>
+                                    <MenuItem text="Фильтр по имени" onAction="#handleFilterContainsName" />
+                                </items>
+                            </Menu>
+
+                            <Menu text="Удаление">
+                                <items>
+                                    <MenuItem text="Удалить по индексу" onAction="#handleRemoveAt" />
+                                    <MenuItem text="Удалить по ID" onAction="#handleRemoveById" />
+                                </items>
+                            </Menu>
+
+                            <Menu text="Вставка/Обновление">
+                                <items>
+                                    <MenuItem text="Вставить по индексу" onAction="#handleInsertAt" />
+                                    <MenuItem text="Обновить объект" onAction="#handleUpdate" />
+                                </items>
+                            </Menu>
+
+                            <MenuItem text="Выполнить скрипт" onAction="#handleExecuteScript" />
+                        </items>
+                    </Menu>
+
+                    <Menu text="Помощь">
+                        <items>
+                            <MenuItem text="Справка (HELP)" onAction="#handleHelp" />
+                        </items>
+                    </Menu>
+                </menus>
+            </MenuBar>
+
+            <!-- Панель поиска -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 5 10 5 10; -fx-background-color: #e8e8e8;">
+                <children>
+                    <Label text="Поиск:" />
+                    <TextField fx:id="searchField" HBox.hgrow="ALWAYS" promptText="Введите для поиска..." />
+                    <ComboBox fx:id="languageSelector" prefWidth="140.0" />
+                </children>
+            </HBox>
+
+            <!-- Панель кнопок -->
+            <ToolBar>
+                <items>
+                    <Label fx:id="userLabel" style="-fx-font-weight: bold;" text="User: —" />
+                    <Pane HBox.hgrow="ALWAYS" />
+
+                    <!-- Основные кнопки -->
+                    <Button fx:id="btnRefresh" onAction="#handleShow" text="Обновить" />
+                    <Button fx:id="btnAdd" onAction="#handleAdd" text="Добавить" />
+                    <Button fx:id="btnDelete" onAction="#handleRemove" text="Удалить" />
+                    <Separator orientation="VERTICAL" />
+
+                    <!-- Дополнительные команды -->
+                    <Button fx:id="btnInfo" onAction="#handleInfo" text="Инфо" />
+                    <Button fx:id="btnSort" onAction="#handleSort" text="Сортировать" />
+                    <Button fx:id="btnSum" onAction="#handleSumOfImpactSpeed" text="Сумма скорости" />
+                    <Button fx:id="btnClear" onAction="#handleClear" text="Очистить" style="-fx-base: #ff9999;" />
+
+                    <Separator orientation="VERTICAL" />
+                    <Button fx:id="btnLogout" onAction="#handleLogout" text="Выйти" />
+                </items>
+            </ToolBar>
+        </VBox>
+    </top>
+
+    <!-- ЦЕНТР: Таблица и Canvas -->
+    <center>
+        <SplitPane dividerPositions="0.55">
+            <items>
+                <TableView fx:id="table" editable="true">
+                    <columns>
+                        <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
+                        <TableColumn fx:id="colName" prefWidth="150.0" text="Имя" />
+                        <TableColumn fx:id="colCoordinates" prefWidth="120.0" text="Координаты" />
+                        <TableColumn fx:id="colCreationDate" prefWidth="140.0" text="Дата создания" />
+                        <TableColumn fx:id="colRealHero" prefWidth="80.0" text="Герой" />
+                        <TableColumn fx:id="colWeapon" prefWidth="100.0" text="Оружие" />
+                        <TableColumn fx:id="colMood" prefWidth="100.0" text="Настроение" />
+                        <TableColumn fx:id="colOwner" prefWidth="120.0" text="Владелец" />
+                    </columns>
+                </TableView>
+
+                <AnchorPane fx:id="canvasContainer">
+                    <children>
+                        <Canvas fx:id="canvas" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <!-- НИЖНЯЯ ПАНЕЛЬ: Статус -->
+    <bottom>
+        <HBox style="-fx-background-color: #f0f0f0; -fx-padding: 5 10 5 10;">
+            <children>
+                <Label fx:id="statusLabel" text="Готов" />
+                <Pane HBox.hgrow="ALWAYS" />
+                <Label text="Подключено к серверу" style="-fx-text-fill: green;" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
