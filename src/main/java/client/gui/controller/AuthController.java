@@ -2,6 +2,7 @@ package client.gui.controller;
 
 import client.gui.ClientApp;
 import client.gui.util.I18N;
+import client.gui.util.I18NResourceBundle;
 import client.network.NetworkClient;
 import common.commands.CommandType;
 import common.model.User;
@@ -52,24 +53,64 @@ public class AuthController {
 
     private void setupLocalization() {
         languageSelector.setItems(FXCollections.observableArrayList(I18N.getSupportedLocales()));
-        languageSelector.setValue(Locale.ENGLISH); // Устанавливаем английский по умолчанию
+        languageSelector.setValue(I18N.getLocale());
 
+        // ✅ Кастомный рендеринг названий
+        languageSelector.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Locale item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : I18N.getLocaleDisplayName(item));
+            }
+        });
+
+        languageSelector.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Locale item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : I18N.getLocaleDisplayName(item));
+            }
+        });
+
+        // ✅ Обработчик выбора
         languageSelector.setOnAction(e -> {
             Locale selected = languageSelector.getValue();
-            if (selected != null) {
+            if (selected != null && !selected.equals(I18N.getLocale())) {
                 I18N.setLocale(selected);
-                updateUITexts();
+                // updateUITexts() вызовется автоматически через listener ниже
             }
+        });
+
+        // ✅ Глобальный слушатель изменений локали
+        I18N.localeProperty().addListener((obs, oldLocale, newLocale) -> {
+            Platform.runLater(this::updateUITexts);
+            languageSelector.setValue(newLocale);
         });
     }
 
     private void updateUITexts() {
-        if (loginField != null) {
+        // Обновляем все текстовые элементы
+        if (loginField != null)
             loginField.setPromptText(I18N.get("auth.username"));
-        }
-        if (passwordField != null) {
+        if (passwordField != null)
             passwordField.setPromptText(I18N.get("auth.password"));
+        if (loginButton != null)
+            loginButton.setText(I18N.get("auth.login"));
+        if (registerButton != null)
+            registerButton.setText(I18N.get("auth.register"));
+
+        // Обновляем статус если есть пользователь
+        if (statusLabel != null && currentUser != null) {
+            statusLabel.setText(I18N.get("auth.welcome", currentUser.getLogin()));
         }
+
+        // Обновляем заголовок окна
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        if (stage != null) {
+            stage.setTitle(I18N.get("window.auth.title"));
+        }
+
+        System.out.println("[AuthController] UI texts updated for locale: " + I18N.getLocale());
     }
 
     private void connectToServer() {
@@ -77,10 +118,12 @@ public class AuthController {
             boolean connected = networkClient.connect();
             Platform.runLater(() -> {
                 if (connected) {
-                    statusLabel.setText("🟢 Подключено к серверу");
+                    // ✅ ИСПОЛЬЗУЕМ I18N ВМЕСТО ХАРДКОДА
+                    statusLabel.setText(I18N.get("auth.connected"));
                     statusLabel.setStyle("-fx-text-fill: green;");
                 } else {
-                    statusLabel.setText("🔴 Нет подключения к серверу");
+                    // ✅ ИСПОЛЬЗУЕМ I18N ВМЕСТО ХАРДКОДА
+                    statusLabel.setText(I18N.get("auth.not.connected"));
                     statusLabel.setStyle("-fx-text-fill: red;");
                 }
             });
@@ -173,7 +216,7 @@ public class AuthController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/client/gui/view/main-view.fxml"),
-                    I18N.getResourceBundle()
+                    new I18NResourceBundle()
             );
             Parent mainRoot = loader.load();
 
